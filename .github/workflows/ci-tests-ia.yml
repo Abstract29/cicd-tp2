@@ -5,7 +5,7 @@ on:
 
 jobs:
   setup_and_build:
-    name: Setup et Génération (Python ${{ matrix.python-version }})
+    name: Setup et Génération (Python 3.11)
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -17,7 +17,7 @@ jobs:
       - name: Configuration de Python et cache Pip
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.11
           cache: "pip"
 
       - name: Mise à jour et installation des dépendances
@@ -30,7 +30,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           # On archive tous les fichiers nécessaires pour le test
-          name: python-sources-${{ matrix.python-version }}
+          name: python-sources-3.11
           path: |
             .
             !reports
@@ -48,7 +48,7 @@ jobs:
       - name: Download des sources et des tests générés
         uses: actions/download-artifact@v4
         with:
-          name: python-sources-${{ matrix.python-version }}
+          name: python-sources-3.11
           path: .
 
       - name: Exécution des tests générés
@@ -72,7 +72,7 @@ jobs:
       - name: Upload des résultats de tests (Rapports et Screenshots)
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-${{ matrix.python-version }}
+          name: test-results-3.11
           path: |
             reports/
             screenshots/
