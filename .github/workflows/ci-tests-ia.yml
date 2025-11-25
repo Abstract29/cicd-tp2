@@ -27,7 +27,7 @@ jobs:
         run: python ai_tools/test_generator.py
 
       - name: Upload des sources et des tests générés
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           # On archive tous les fichiers nécessaires pour le test
           name: python-sources-${{ matrix.python-version }}
@@ -51,7 +51,7 @@ jobs:
     steps:
       # Récupération des fichiers du job précédent
       - name: Download des sources et des tests générés
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: python-sources-${{ matrix.python-version }}
           path: .
@@ -75,7 +75,7 @@ jobs:
 
       # --- Sauvegarde des Rapports pour l'étape suivante ---
       - name: Upload des résultats de tests (Rapports et Screenshots)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.python-version }}
           path: |
@@ -102,7 +102,7 @@ jobs:
         run: allure generate reports/allure-results --clean -o reports/allure-report
 
       - name: Upload du Rapport Allure Final
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rapport-final-allure
           path: reports/allure-report
