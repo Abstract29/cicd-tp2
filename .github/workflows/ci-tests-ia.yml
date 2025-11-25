@@ -1,0 +1,68 @@
+name: CI - Tests Automatisés avec IA
+on:
+  push:
+    branches: ["*"]
+
+jobs:
+  test-and-analyze:
+    name: Tests et Analyse (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, 3.10, 3.11]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # --- 1. Installation & Préparation ---
+      - name: Configuration de Python et cache Pip
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Mise à jour et installation des dépendances
+        run: pip install -r requirements.txt
+
+      # --- 2. Génération et Exécution Critique ---
+
+      - name: Génération des tests Pytest à partir du Gherkin
+        # Exécute le générateur, le fichier de tests doit être créé.
+        run: python ai_tools/test_generator.py
+
+      - name: Exécution des tests générés (Unitaires / Fonctionnels)
+        # Ces tests sont critiques, nous supprimons continue-on-error.
+        run: python -m pytest tests/generated/ -v
+
+      # --- 3. Exécution des Tests Spécifiques (Visuels / E2E) ---
+
+      - name: Installation de Chrome pour les tests visuels
+        uses: browser-actions/setup-chrome@latest
+        # Le 'uses' est plus efficace ici.
+
+      - name: Exécution des tests visuels/E2E
+        run: python -m pytest tests/visual/ -v
+        # Laisser le continue-on-error si les tests visuels sont moins critiques
+        continue-on-error: true
+
+      # --- 4. Collecte Allure & Rapports ---
+
+      # Exécution UNE SEULE FOIS pour générer le rapport Allure et HTML.
+      # L'option --html est ajoutée ici pour consolider l'exécution.
+      - name: Exécution complète et collecte des résultats Allure/HTML
+        run: |
+          python -m pytest tests/ -v \
+            --html=reports/full-report.html --self-contained-html \
+            --alluredir=reports/allure-results
+        continue-on-error: true # Continuer même si la collecte échoue
+
+      # Installation des dépendances de reporting (garder if: always() pour le cas où les tests échouent)
+      - name: Installation d'Allure CLI
+        if: always()
+        run: npm install -g allure-commandline
+
+      # Génération du rapport
+      - name: Génération du rapport HTML Allure
+        if: always()
+        run: allure generate reports/allure-results --clean -o reports/allure-report

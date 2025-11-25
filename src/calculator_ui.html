@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculatrice</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .calculator {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 320px;
+        }
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-top: 0;
+        }
+        .display {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: right;
+            font-size: 28px;
+            margin-bottom: 20px;
+            min-height: 40px;
+            word-wrap: break-word;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        button {
+            padding: 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        .number {
+            background: #e0e0e0;
+            color: #333;
+        }
+        .operator {
+            background: #667eea;
+            color: white;
+        }
+        .equals {
+            background: #48bb78;
+            color: white;
+            grid-column: span 2;
+        }
+        .clear {
+            background: #f56565;
+            color: white;
+            grid-column: span 2;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>🧮 Calculatrice</h1>
+        <div id="display" class="display">0</div>
+        <div class="buttons">
+            <button class="number" onclick="appendNumber('7')">7</button>
+            <button class="number" onclick="appendNumber('8')">8</button>
+            <button class="number" onclick="appendNumber('9')">9</button>
+            <button class="operator" onclick="setOperator('/')">/</button>
+
+            <button class="number" onclick="appendNumber('4')">4</button>
+            <button class="number" onclick="appendNumber('5')">5</button>
+            <button class="number" onclick="appendNumber('6')">6</button>
+            <button class="operator" onclick="setOperator('*')">×</button>
+
+            <button class="number" onclick="appendNumber('1')">1</button>
+            <button class="number" onclick="appendNumber('2')">2</button>
+            <button class="number" onclick="appendNumber('3')">3</button>
+            <button class="operator" onclick="setOperator('-')">-</button>
+
+            <button class="number" onclick="appendNumber('0')">0</button>
+            <button class="number" onclick="appendNumber('.')">.</button>
+            <button class="equals" onclick="calculate()">=</button>
+            <button class="operator" onclick="setOperator('+')">+</button>
+
+            <button class="clear" onclick="clearDisplay()">Clear</button>
+        </div>
+    </div>
+
+    <script>
+        let currentValue = '0';
+        let previousValue = null;
+        let operator = null;
+
+        function updateDisplay() {
+            document.getElementById('display').textContent = currentValue;
+        }
+
+        function appendNumber(num) {
+            if (currentValue === '0') {
+                currentValue = num;
+            } else {
+                currentValue += num;
+            }
+            updateDisplay();
+        }
+
+        function setOperator(op) {
+            if (previousValue === null) {
+                previousValue = parseFloat(currentValue);
+                currentValue = '0';
+            }
+            operator = op;
+        }
+
+        function calculate() {
+            if (previousValue !== null && operator !== null) {
+                const current = parseFloat(currentValue);
+                let result;
+                switch(operator) {
+                    case '+': result = previousValue + current; break;
+                    case '-': result = previousValue - current; break;
+                    case '*': result = previousValue * current; break;
+                    case '/': result = previousValue / current; break;
+                }
+                currentValue = result.toString();
+                previousValue = null;
+                operator = null;
+                updateDisplay();
+            }
+        }
+
+        function clearDisplay() {
+            currentValue = '0';
+            previousValue = null;
+            operator = null;
+            updateDisplay();
+        }
+    </script>
+</body>
+</html>

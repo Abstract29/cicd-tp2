@@ -319,19 +319,19 @@ from pathlib import Path
 
 class TestGenerator:
     """Génère des tests pytest à partir de spécifications Given-When-Then"""
-    
+
     def __init__(self, specs_file: str):
         self.specs_file = Path(specs_file)
         self.specs = self._parse_specifications()
-    
+
     def _parse_specifications(self) -> Dict[str, List[str]]:
         """Parse le fichier de spécifications et extrait les scénarios"""
         with open(self.specs_file, 'r', encoding='utf-8') as f:
             content = f.read()
-        
+
         specs = {}
         current_section = None
-        
+
         # Extraction des sections et scénarios
         for line in content.split('\n'):
             # Détection des sections (### Titre)
@@ -341,9 +341,9 @@ class TestGenerator:
             # Détection des scénarios (- GIVEN...)
             elif line.startswith('- GIVEN') and current_section:
                 specs[current_section].append(line[2:])  # Retire "- "
-        
+
         return specs
-    
+
     def _generate_test_name(self, scenario: str) -> str:
         """Génère un nom de test à partir d'un scénario"""
         # Extraire les parties clés du scénario
@@ -355,21 +355,21 @@ class TestGenerator:
             test_name = test_name.lower().replace(' ', '_')
             return f"test_{test_name}"
         return "test_scenario"
-    
+
     def _generate_test_body(self, section: str, scenario: str) -> str:
         """Génère le corps du test en fonction du scénario"""
         # Parser le scénario
         given_match = re.search(r'GIVEN (.+?) WHEN', scenario)
         when_match = re.search(r'WHEN (.+?) THEN', scenario)
         then_match = re.search(r'THEN (.+?)$', scenario)
-        
+
         given = given_match.group(1) if given_match else ""
         when = when_match.group(1) if when_match else ""
         then = then_match.group(1) if then_match else ""
-        
+
         # Génération du code selon la section
         code = self._map_scenario_to_code(section, given, when, then)
-        
+
         return f'''        """
         GIVEN {given}
         WHEN {when}
@@ -377,10 +377,10 @@ class TestGenerator:
         """
         calculator = Calculator()
 {code}'''
-    
+
     def _map_scenario_to_code(self, section: str, given: str, when: str, then: str) -> str:
         """Mappe un scénario vers du code Python concret (logique simplifiée)"""
-        
+
         # Mapping basé sur les mots-clés
         if section == "addition":
             if "positifs" in given:
@@ -389,13 +389,13 @@ class TestGenerator:
                 return "        result = calculator.add(5, -3)\n        assert result == 2"
             elif "décimaux" in given:
                 return "        result = calculator.add(5.5, 3.2)\n        assert abs(result - 8.7) < 0.01"
-        
+
         elif section == "soustraction":
             if "positifs" in given:
                 return "        result = calculator.subtract(10, 3)\n        assert result == 7"
             elif "négatif" in given:
                 return "        result = calculator.subtract(3, 10)\n        assert result == -7"
-        
+
         elif section == "multiplication":
             if "positifs" in given:
                 return "        result = calculator.multiply(5, 3)\n        assert result == 15"
@@ -403,7 +403,7 @@ class TestGenerator:
                 return "        result = calculator.multiply(5, 0)\n        assert result == 0"
             elif "négatifs" in given:
                 return "        result = calculator.multiply(-5, -3)\n        assert result == 15"
-        
+
         elif section == "division":
             if "n'est pas zéro" in given:
                 return "        result = calculator.divide(10, 2)\n        assert result == 5.0"
@@ -411,7 +411,7 @@ class TestGenerator:
                 return "        with pytest.raises(ValueError, match=\"Division par zéro\"):\n            calculator.divide(10, 0)"
             elif "décimale" in given:
                 return "        result = calculator.divide(7, 3)\n        assert abs(result - 2.333) < 0.01"
-        
+
         elif section == "puissance":
             if "positif" in given:
                 return "        result = calculator.power(2, 3)\n        assert result == 8"
@@ -419,13 +419,13 @@ class TestGenerator:
                 return "        result = calculator.power(2, -2)\n        assert result == 0.25"
             elif "zéro" in given:
                 return "        result = calculator.power(5, 0)\n        assert result == 1"
-        
+
         elif section == "modulo":
             if "positifs" in given:
                 return "        result = calculator.modulo(10, 3)\n        assert result == 1"
             elif "zéro" in given:
                 return "        with pytest.raises(ValueError):\n            calculator.modulo(10, 0)"
-        
+
         elif section == "factorielle":
             if "positif" in given and "zéro" not in given:
                 return "        from src.calculator import AdvancedCalculator\n        calculator = AdvancedCalculator()\n        result = calculator.factorial(5)\n        assert result == 120"
@@ -433,7 +433,7 @@ class TestGenerator:
                 return "        from src.calculator import AdvancedCalculator\n        calculator = AdvancedCalculator()\n        result = calculator.factorial(0)\n        assert result == 1"
             elif "négatif" in given:
                 return "        from src.calculator import AdvancedCalculator\n        calculator = AdvancedCalculator()\n        with pytest.raises(ValueError):\n            calculator.factorial(-5)"
-        
+
         elif section == "nombre premier":
             if "premier" in given and "non" not in given:
                 return "        from src.calculator import AdvancedCalculator\n        calculator = AdvancedCalculator()\n        assert calculator.is_prime(7) == True"
@@ -441,15 +441,15 @@ class TestGenerator:
                 return "        from src.calculator import AdvancedCalculator\n        calculator = AdvancedCalculator()\n        assert calculator.is_prime(8) == False"
             elif "inférieur" in given:
                 return "        from src.calculator import AdvancedCalculator\n        calculator = AdvancedCalculator()\n        assert calculator.is_prime(1) == False"
-        
+
         # Par défaut
         return "        # TODO: Implémenter ce test\n        pass"
-    
+
     def generate_tests(self, output_file: str):
         """Génère le fichier de tests complet"""
         output_path = Path(output_file)
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # En-tête du fichier
         content = '''"""
 Tests générés automatiquement par IA à partir des spécifications
@@ -464,7 +464,7 @@ class TestCalculatorGenerated:
     """Tests générés automatiquement"""
     
 '''.format(self.specs_file.name)
-        
+
         # Génération des tests
         for section, scenarios in self.specs.items():
             content += f"    # Tests pour: {section}\n"
@@ -472,11 +472,11 @@ class TestCalculatorGenerated:
                 test_name = self._generate_test_name(scenario)
                 test_body = self._generate_test_body(section, scenario)
                 content += f"\n    def {test_name}(self):\n{test_body}\n\n"
-        
+
         # Écriture du fichier
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(content)
-        
+
         print(f"✅ Tests générés avec succès: {output_path}")
         print(f"📊 Nombre de sections: {len(self.specs)}")
         print(f"📊 Nombre total de tests: {sum(len(scenarios) for scenarios in self.specs.values())}")
@@ -484,7 +484,7 @@ class TestCalculatorGenerated:
 
 def main():
     """Point d'entrée principal"""
-    generator = TestGenerator('specs/calculator_spec.txt')
+    generator = TestGenerator('specs/calculator_cucumber.feature')
     generator.generate_tests('tests/generated/test_calculator_generated.py')
 
 
