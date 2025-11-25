@@ -102,7 +102,7 @@ class VisualComparator:
         img = Image.open(screenshot_path)
         Path(baseline_path).parent.mkdir(parents=True, exist_ok=True)
         img.save(baseline_path)
-        print(f"✅ Baseline créée: {baseline_path}")
+        print(f"Baseline créée: {baseline_path}")
 
 
 def main():
