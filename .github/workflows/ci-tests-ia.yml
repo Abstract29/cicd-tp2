@@ -4,12 +4,13 @@ on:
     branches: ["*"]
 
 jobs:
-  setup_and_build:
-    name: Setup et Génération (Python ${{ matrix.python-version }})
+  test-and-analyze:
+    name: Tests et Analyse (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        python-version: [3.8, 3.9, 3.10, 3.11]
+        python-version: [3.11]
 
     steps:
       - uses: actions/checkout@v4
@@ -26,37 +27,7 @@ jobs:
       - name: Génération des tests Pytest à partir du Gherkin
         run: python ai_tools/test_generator.py
 
-      - name: Upload des sources et des tests générés
-        uses: actions/upload-artifact@v3
-        with:
-          # On archive tous les fichiers nécessaires pour le test
-          name: python-sources-${{ matrix.python-version }}
-          path: |
-            .
-            !reports
-            !screenshots
-            !venv
-          retention-days: 1
-
-  run_tests:
-    name: Exécution des Tests (${{ needs.setup_and_build.outputs.python-version }})
-    runs-on: ubuntu-latest
-    needs: setup_and_build
-
-    # Utilise la matrice de l'étape précédente
-    strategy:
-      matrix:
-        python-version: ${{ fromJson(needs.setup_and_build.outputs.python-versions) }}
-
-    steps:
-      # Récupération des fichiers du job précédent
-      - name: Download des sources et des tests générés
-        uses: actions/download-artifact@v3
-        with:
-          name: python-sources-${{ matrix.python-version }}
-          path: .
-
-      - name: Exécution des tests générés
+      - name: Exécution des tests générés (Unitaires / Fonctionnels)
         run: python -m pytest tests/generated/ -v
 
       - name: Installation de Chrome pour les tests visuels
@@ -73,37 +44,10 @@ jobs:
             --alluredir=reports/allure-results
         continue-on-error: true
 
-      # --- Sauvegarde des Rapports pour l'étape suivante ---
-      - name: Upload des résultats de tests (Rapports et Screenshots)
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-results-${{ matrix.python-version }}
-          path: |
-            reports/
-            screenshots/
-          retention-days: 30
-
-  reporting_and_upload:
-    name: Génération et Upload des Rapports
-    runs-on: ubuntu-latest
-    needs: run_tests
-
-    steps:
-      - name: Download de tous les résultats de tests
-        uses: actions/download-artifact@v3
-        with:
-          name: test-results-3.11
-          path: reports/
-
       - name: Installation d'Allure CLI
+        if: always()
         run: npm install -g allure-commandline
 
       - name: Génération du rapport HTML Allure
+        if: always()
         run: allure generate reports/allure-results --clean -o reports/allure-report
-
-      - name: Upload du Rapport Allure Final
-        uses: actions/upload-artifact@v3
-        with:
-          name: rapport-final-allure
-          path: reports/allure-report
-          retention-days: 30
