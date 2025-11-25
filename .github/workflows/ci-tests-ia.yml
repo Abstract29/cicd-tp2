@@ -5,7 +5,7 @@ on:
 
 jobs:
   test-and-analyze:
-    name: Tests et Analyse (Python ${{ matrix.python-version }})
+    name: Tests et Analyse
     runs-on: ubuntu-latest
 
     strategy:
