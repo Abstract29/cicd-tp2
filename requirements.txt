@@ -1,0 +1,9 @@
+pytest==7.4.3
+pytest-html==4.1.1
+selenium==4.15.2
+pillow
+pandas
+scikit-learn
+matplotlib
+allure-pytest
+webdriver-manager==4.0.1
