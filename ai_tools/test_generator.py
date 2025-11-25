@@ -276,12 +276,12 @@ class TestGenerator:
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(final_content)
 
-        print(f"✅ Tests générés avec succès: {output_path}")
-        print(f"📊 Nombre total de tests générés: {len(self.specs)}")
+        print(f"Tests générés avec succès: {output_path}")
+        print(f"Nombre total de tests générés: {len(self.specs)}")
 
         # Ajout du rappel pour l'environnement
         if not Path("tests", "__init__.py").exists():
-            print("\n⚠️ ATTENTION: Pour que Pytest puisse trouver le module 'calculator' (où se trouve AdvancedCalculator), vous devez créer le fichier vide 'tests/__init__.py'.")
+            print("\nATTENTION: Pour que Pytest puisse trouver le module 'calculator' (où se trouve AdvancedCalculator), vous devez créer le fichier vide 'tests/__init__.py'.")
 
 def main():
     """Point d'entrée principal"""
