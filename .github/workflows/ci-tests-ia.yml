@@ -8,14 +8,9 @@ jobs:
     name: Tests et Analyse (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
 
-    # AJOUT CLÉ ICI: Définit l'encodage d'entrée/sortie pour Python à UTF-8,
-    # ce qui résout l'erreur UnicodeEncodeError sur les runners Windows.
-    env:
-      PYTHONIOENCODING: utf-8
-
     strategy:
       matrix:
-        python-version: [3.11]
+        python-version: [3.8, 3.9, 3.10, 3.11]
 
     steps:
       - uses: actions/checkout@v4
